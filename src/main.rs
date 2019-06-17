@@ -1,3 +1,10 @@
+#![windows_subsystem = "windows"]
+
+extern "C" {
+    fn start_app();
+}
+
 fn main() {
-    println!("Hello, world!");
+    winrt::init_apartment(winrt::ApartmentType::MTA);
+    unsafe { start_app(); }
 }

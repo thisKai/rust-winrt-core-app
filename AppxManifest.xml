@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Package
+        xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+        xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest"
+        xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+        xmlns:uap5="http://schemas.microsoft.com/appx/manifest/uap/windows10/5"
+        xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+        IgnorableNamespaces="uap mp">
+    <Identity
+            Name="RustWinrtCoreAppExample"
+            Publisher="CN=kai-p"
+            Version="1.0.0.0" />
+    <Properties>
+        <DisplayName>RustWinrtCoreAppExample</DisplayName>
+        <PublisherDisplayName>thiskaiguy</PublisherDisplayName>
+        <Logo>assets\StoreLogo.png</Logo>
+    </Properties>
+    <Dependencies>
+        <TargetDeviceFamily Name="Windows.Universal" MinVersion="10.0.0.0" MaxVersionTested="10.0.16266.0" />
+    </Dependencies>
+    <Resources>
+        <Resource Language="en-gb" />
+    </Resources>
+    <Applications>
+        <Application Id="App" Executable="target\debug\winrt-core-app-example.exe" EntryPoint="App">
+            <uap:VisualElements DisplayName="RustWinrtCoreAppExample" Description="A minimal Universal Windows Platform (UWP) app example in rust"
+                                Square150x150Logo="assets\Logo.png" Square44x44Logo="assets\SmallLogo.png" BackgroundColor="#464646">
+                <uap:SplashScreen Image="assets\SplashScreen.png" />
+            </uap:VisualElements>
+            <Extensions>
+                <uap5:Extension
+                        Category="windows.appExecutionAlias"
+                        Executable="target\debug\winrt-core-app-example.exe"
+                        EntryPoint="App">
+                    <uap5:AppExecutionAlias>
+                        <uap5:ExecutionAlias Alias="winrt-core-app-example.exe" />
+                    </uap5:AppExecutionAlias>
+                </uap5:Extension>
+            </Extensions>
+        </Application>
+    </Applications>
+    <Capabilities>
+        <rescap:Capability Name="runFullTrust"/>
+        <rescap:Capability Name="broadFileSystemAccess" />
+    </Capabilities>
+</Package>
