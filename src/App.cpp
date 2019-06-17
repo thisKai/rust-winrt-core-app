@@ -16,10 +16,20 @@ namespace abi {
 
 struct App : implements<App, IFrameworkViewSource, IFrameworkView>
 {
+    std::unique_ptr<rust_ffi::FrameworkView> m_view;
     CompositionTarget m_target{ nullptr };
     VisualCollection m_visuals{ nullptr };
     Visual m_selected{ nullptr };
     float2 m_offset{};
+
+    App()
+    {
+        m_view = nullptr;
+    }
+    App(rust_ffi::FrameworkView view)
+    {
+        m_view = std::make_unique<rust_ffi::FrameworkView>(view);
+    }
 
     IFrameworkView CreateView()
     {
@@ -28,27 +38,27 @@ struct App : implements<App, IFrameworkViewSource, IFrameworkView>
 
     void Initialize(CoreApplicationView const &)
     {
+        m_view->Initialize();
     }
 
     void Load(hstring const&)
     {
+        m_view->Load();
     }
 
     void Uninitialize()
     {
+        m_view->Uninitialize();
     }
 
     void Run()
     {
-        CoreWindow window = CoreWindow::GetForCurrentThread();
-        window.Activate();
-
-        CoreDispatcher dispatcher = window.Dispatcher();
-        dispatcher.ProcessEvents(CoreProcessEventsOption::ProcessUntilQuit);
+        m_view->Run();
     }
 
     void SetWindow(CoreWindow const & window)
     {
+        m_view->SetWindow();
         Compositor compositor;
         ContainerVisual root = compositor.CreateContainerVisual();
         m_target = compositor.CreateTargetForCurrentView();
@@ -150,9 +160,9 @@ struct App : implements<App, IFrameworkViewSource, IFrameworkView>
     }
 };
 
-com_ptr<abi::IFrameworkViewSource> create_app_cpp()
+com_ptr<abi::IFrameworkViewSource> create_app_cpp(rust_ffi::FrameworkView view)
 {
-    auto app = make<App>();
+    auto app = make<App>(view);
     auto fwvs = app.as<IFrameworkViewSource>();
     com_ptr<abi::IFrameworkViewSource> ptr {
         fwvs.as<abi::IFrameworkViewSource>()
@@ -160,7 +170,7 @@ com_ptr<abi::IFrameworkViewSource> create_app_cpp()
     return ptr;
 }
 
-extern "C" abi::IFrameworkViewSource* create_app()
+extern "C" abi::IFrameworkViewSource* create_app(rust_ffi::FrameworkView view)
 {
-    return create_app_cpp().detach();
+    return create_app_cpp(view).detach();
 }

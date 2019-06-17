@@ -7,7 +7,8 @@ edition = "2018"
 [dependencies.winrt]
 version = "0.6.0"
 features = [
-    "windows-applicationmodel"
+    "windows-applicationmodel",
+    "windows-ui",
 ]
 
 [build-dependencies]
