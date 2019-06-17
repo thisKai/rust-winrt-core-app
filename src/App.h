@@ -1,1 +1,1 @@
-extern "C" void start_app();
+extern "C" abi::IFrameworkViewSource* create_app()

@@ -1,10 +1,23 @@
 #![windows_subsystem = "windows"]
 
+use winrt::{
+    init_apartment,
+    ApartmentType,
+    ComPtr,
+    windows::applicationmodel::core::{
+        IFrameworkViewSource,
+        CoreApplication,
+    },
+};
+
 extern "C" {
-    fn start_app();
+    fn create_app() -> *mut IFrameworkViewSource;
 }
 
 fn main() {
-    winrt::init_apartment(winrt::ApartmentType::MTA);
-    unsafe { start_app(); }
+    init_apartment(ApartmentType::MTA);
+
+    let app = unsafe { ComPtr::wrap(create_app()) };
+
+    let _ = CoreApplication::run(&app);
 }

@@ -10,6 +10,10 @@ using namespace Windows::UI;
 using namespace Windows::UI::Core;
 using namespace Windows::UI::Composition;
 
+namespace abi {
+    using namespace ABI::Windows::ApplicationModel::Core;
+};
+
 struct App : implements<App, IFrameworkViewSource, IFrameworkView>
 {
     CompositionTarget m_target{ nullptr };
@@ -146,12 +150,17 @@ struct App : implements<App, IFrameworkViewSource, IFrameworkView>
     }
 };
 
-void start_app_cpp()
+com_ptr<abi::IFrameworkViewSource> create_app_cpp()
 {
-    CoreApplication::Run(make<App>());
+    auto app = make<App>();
+    auto fwvs = app.as<IFrameworkViewSource>();
+    com_ptr<abi::IFrameworkViewSource> ptr {
+        fwvs.as<abi::IFrameworkViewSource>()
+    };
+    return ptr;
 }
 
-extern "C" void start_app()
+extern "C" abi::IFrameworkViewSource* create_app()
 {
-    start_app_cpp();
+    return create_app_cpp().detach();
 }

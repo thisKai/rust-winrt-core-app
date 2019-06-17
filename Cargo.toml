@@ -4,8 +4,11 @@ version = "0.1.0"
 authors = ["Kai <thiskaiguy@gmail.com>"]
 edition = "2018"
 
-[dependencies]
-winrt = "0.6.0"
+[dependencies.winrt]
+version = "0.6.0"
+features = [
+    "windows-applicationmodel"
+]
 
 [build-dependencies]
 cpp_build = "0.5.1"
