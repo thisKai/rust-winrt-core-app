@@ -108,7 +108,6 @@ struct App {
     last: Atomic<usize>,
     offset: Atomic<(f32, f32)>,
 }
-unsafe impl Send for App {}
 
 impl App {
     fn set_target(&self, value: ComPtr<CompositionTarget>) {
