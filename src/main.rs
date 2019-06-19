@@ -1,7 +1,7 @@
 #![windows_subsystem = "windows"]
 
 mod framework_view;
-mod com_hacks;
+pub mod com;
 
 use std::sync::Arc;
 use winrt::{
@@ -38,7 +38,7 @@ use framework_view::{
     FrameworkView,
     FrameworkViewSource,
 };
-use com_hacks::{ComProp, ComIterMirror};
+use com::{ComProp, ComIterMirror};
 
 #[derive(Default)]
 struct App {
