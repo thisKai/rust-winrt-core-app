@@ -13,10 +13,7 @@ use winrt::{
                 Vector3,
             },
         },
-        applicationmodel::core::{
-            IFrameworkViewSource,
-            CoreApplication,
-        },
+        applicationmodel::core::CoreApplication,
         ui::{
             Color,
             core::{
@@ -38,13 +35,8 @@ use atomic::{Atomic, Ordering};
 
 use framework_view::{
     FrameworkView,
-    FrameworkViewFfi,
-    ffi,
+    FrameworkViewSource,
 };
-
-extern "C" {
-    fn create_app(view: FrameworkViewFfi) -> *mut IFrameworkViewSource;
-}
 
 struct ComPropInner<T>(ComPtr<T>);
 unsafe impl<T> Send for ComPropInner<T> {}
@@ -271,12 +263,11 @@ impl FrameworkView for App {
         let _ = window.add_pointer_released(&pointer_released_handler);
     }
 }
+
 fn main() {
     init_apartment(ApartmentType::MTA);
 
-    let view = ffi(App::default());
-
-    let app = unsafe { ComPtr::wrap(create_app(view)) };
+    let app = App::default().create_view();
 
     let _ = CoreApplication::run(&app);
 }

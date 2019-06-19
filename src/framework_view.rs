@@ -2,6 +2,14 @@ use std::{
     ffi::c_void,
     sync::Arc,
 };
+use winrt::{
+    *,
+    windows::applicationmodel::core::IFrameworkViewSource,
+};
+
+extern "C" {
+    fn create_app(view: FrameworkViewFfi) -> *mut IFrameworkViewSource;
+}
 
 pub trait FrameworkView {
     fn initialize(self: Arc<Self>) {}
@@ -9,6 +17,17 @@ pub trait FrameworkView {
     fn run(self: Arc<Self>) {}
     fn set_window(self: Arc<Self>) {}
     fn uninitialize(self: Arc<Self>) {}
+}
+
+pub trait FrameworkViewSource {
+    fn create_view(self) -> ComPtr<IFrameworkViewSource>;
+}
+impl<T: FrameworkView + 'static> FrameworkViewSource for T {
+    fn create_view(self) -> ComPtr<IFrameworkViewSource> {
+        let view = ffi(self);
+
+        unsafe { ComPtr::wrap(create_app(view)) }
+    }
 }
 
 macro_rules! vtable_methods {
