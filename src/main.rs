@@ -1,8 +1,9 @@
 #![windows_subsystem = "windows"]
 
 mod framework_view;
+mod com_hacks;
 
-use std::sync::{Arc, Mutex, MutexGuard};
+use std::sync::Arc;
 use winrt::{
     *,
     windows::{
@@ -37,59 +38,7 @@ use framework_view::{
     FrameworkView,
     FrameworkViewSource,
 };
-
-struct ComPropInner<T>(ComPtr<T>);
-unsafe impl<T> Send for ComPropInner<T> {}
-
-struct ComProp<T>(Arc<Mutex<Option<ComPropInner<T>>>>);
-impl<T> ComProp<T> {
-    fn new(ptr: ComPtr<T>) -> Self {
-        Self(Arc::new(Mutex::new(Some(ComPropInner(ptr)))))
-    }
-    fn get(&self) -> Option<ComPtr<T>> {
-        let lock = self.0.lock().ok()?;
-        lock.as_ref().map(|inner| inner.0.clone())
-    }
-    fn set(&self, value: Option<ComPtr<T>>) {
-        let mut lock = self.0.lock().expect("ComProp set: mutex lock failed");
-        if let Some(current) = &mut *lock {
-            if let Some(new) = value {
-                current.0 = new;
-            } else {
-                *lock = None;
-            }
-        } else {
-            *lock = value.map(|v| ComPropInner(v));
-        }
-    }
-}
-impl<T> Default for ComProp<T> {
-    fn default() -> Self {
-        Self(Arc::new(Mutex::new(None)))
-    }
-}
-
-struct ComIterMirror<T>(Mutex<Vec<ComProp<T>>>);
-impl<T> ComIterMirror<T> {
-    fn get(&self) -> MutexGuard<Vec<ComProp<T>>> {
-        self.0.lock().expect("ComIterMirror: mutex lock failed")
-    }
-    fn vec(&self) -> Vec<ComPtr<T>> {
-        self
-            .get()
-            .iter()
-            .filter_map(|i| i.get().clone())
-            .collect()
-    }
-    fn push(&self, item: ComPtr<T>) {
-        self.get().push(ComProp::new(item));
-    }
-}
-impl<T> Default for ComIterMirror<T> {
-    fn default() -> Self {
-        Self(Mutex::new(Vec::new()))
-    }
-}
+use com_hacks::{ComProp, ComIterMirror};
 
 #[derive(Default)]
 struct App {
