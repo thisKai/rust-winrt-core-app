@@ -216,7 +216,7 @@ impl FrameworkView for App {
 fn main() {
     init_apartment(ApartmentType::MTA);
 
-    let app = App::default().create_view();
+    let app = App::default().com();
 
     let _ = CoreApplication::run(&app);
 }

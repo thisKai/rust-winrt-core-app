@@ -20,10 +20,10 @@ pub trait FrameworkView {
 }
 
 pub trait FrameworkViewSource {
-    fn create_view(self) -> ComPtr<IFrameworkViewSource>;
+    fn com(self) -> ComPtr<IFrameworkViewSource>;
 }
 impl<T: FrameworkView + 'static> FrameworkViewSource for T {
-    fn create_view(self) -> ComPtr<IFrameworkViewSource> {
+    fn com(self) -> ComPtr<IFrameworkViewSource> {
         let view = ffi(self);
 
         unsafe { ComPtr::wrap(create_app(view)) }
