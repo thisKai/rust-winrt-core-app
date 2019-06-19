@@ -4,11 +4,11 @@ use std::{
 };
 
 pub trait FrameworkView {
-    fn initialize(mut self: Arc<Self>) {}
-    fn load(mut self: Arc<Self>) {}
-    fn run(mut self: Arc<Self>) {}
-    fn set_window(mut self: Arc<Self>) {}
-    fn uninitialize(mut self: Arc<Self>) {}
+    fn initialize(self: Arc<Self>) {}
+    fn load(self: Arc<Self>) {}
+    fn run(self: Arc<Self>) {}
+    fn set_window(self: Arc<Self>) {}
+    fn uninitialize(self: Arc<Self>) {}
 }
 
 macro_rules! vtable_methods {
