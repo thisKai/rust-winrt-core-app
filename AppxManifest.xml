@@ -22,7 +22,7 @@
         <Resource Language="en-gb" />
     </Resources>
     <Applications>
-        <Application Id="App" Executable="target\debug\winrt-core-app-example.exe" EntryPoint="App">
+        <Application Id="App" Executable="target\debug\examples\main.exe" EntryPoint="App">
             <uap:VisualElements DisplayName="RustWinrtCoreAppExample" Description="A minimal Universal Windows Platform (UWP) app example in rust"
                                 Square150x150Logo="assets\Logo.png" Square44x44Logo="assets\SmallLogo.png" BackgroundColor="#464646">
                 <uap:SplashScreen Image="assets\SplashScreen.png" />
@@ -30,7 +30,7 @@
             <Extensions>
                 <uap5:Extension
                         Category="windows.appExecutionAlias"
-                        Executable="target\debug\winrt-core-app-example.exe"
+                        Executable="target\debug\examples\main.exe"
                         EntryPoint="App">
                     <uap5:AppExecutionAlias>
                         <uap5:ExecutionAlias Alias="winrt-core-app-example.exe" />

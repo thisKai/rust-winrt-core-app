@@ -8,5 +8,5 @@ fn main() {
         .file("src/App.cpp")
         .flag("-std:c++17")
         .flag("/EHsc")
-        .build("src/main.rs");
+        .build("src/lib.rs");
 }

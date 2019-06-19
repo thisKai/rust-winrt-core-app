@@ -1,7 +1,10 @@
 #![windows_subsystem = "windows"]
 
-mod framework_view;
-pub mod com;
+use winrt_core_app_example::{
+    FrameworkView,
+    FrameworkViewSource,
+    com::{ComProp, ComIterMirror},
+};
 
 use std::sync::Arc;
 use winrt::{
@@ -33,12 +36,6 @@ use winrt::{
     },
 };
 use atomic::{Atomic, Ordering};
-
-use framework_view::{
-    FrameworkView,
-    FrameworkViewSource,
-};
-use com::{ComProp, ComIterMirror};
 
 #[derive(Default)]
 struct App {
