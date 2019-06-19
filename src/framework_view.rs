@@ -1,19 +1,22 @@
-use std::ffi::c_void;
+use std::{
+    ffi::c_void,
+    sync::Arc,
+};
 
 pub trait FrameworkView {
-    fn initialize(&mut self) {}
-    fn load(&mut self) {}
-    fn run(&mut self) {}
-    fn set_window(&mut self) {}
-    fn uninitialize(&mut self) {}
+    fn initialize(mut self: Arc<Self>) {}
+    fn load(mut self: Arc<Self>) {}
+    fn run(mut self: Arc<Self>) {}
+    fn set_window(mut self: Arc<Self>) {}
+    fn uninitialize(mut self: Arc<Self>) {}
 }
 
 macro_rules! vtable_methods {
     ($fn_name: ident) => {
         extern "C" fn $fn_name(framework_view: *mut c_void) {
-            let framework_view = framework_view as *mut Box<FrameworkView>;
+            let framework_view = framework_view as *mut Arc<FrameworkView>;
             let framework_view = unsafe { &mut *framework_view };
-            framework_view.$fn_name()
+            framework_view.clone().$fn_name()
         }
     };
     ($($fn_name: ident,)+) => {
@@ -39,7 +42,7 @@ pub struct FrameworkViewVTable {
 
 
 pub fn ffi<A: FrameworkView + 'static>(framework_view: A) -> FrameworkViewFfi {
-    let data: *mut Box<dyn FrameworkView> = Box::into_raw(Box::new(Box::new(framework_view)));
+    let data: *mut Arc<dyn FrameworkView> = Box::into_raw(Box::new(Arc::new(framework_view)));
     let data = data as *mut c_void;
 
     vtable_methods![

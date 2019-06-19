@@ -4,6 +4,9 @@ version = "0.1.0"
 authors = ["Kai <thiskaiguy@gmail.com>"]
 edition = "2018"
 
+[dependencies]
+atomic = "0.4.5"
+
 [dependencies.winrt]
 version = "0.6.0"
 features = [
