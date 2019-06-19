@@ -1,6 +1,6 @@
 #![windows_subsystem = "windows"]
 
-use winrt_core_app_example::{
+use winrt_core_app::{
     FrameworkView,
     FrameworkViewSource,
     com::{ComProp, ComIterMirror},

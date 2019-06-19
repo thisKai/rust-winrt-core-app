@@ -1,5 +1,5 @@
 [package]
-name = "winrt-core-app-example"
+name = "winrt-core-app"
 version = "0.1.0"
 authors = ["Kai <thiskaiguy@gmail.com>"]
 edition = "2018"
