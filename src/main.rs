@@ -1,8 +1,8 @@
- #![windows_subsystem = "windows"]
+#![windows_subsystem = "windows"]
 
 mod framework_view;
 
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, Mutex, MutexGuard};
 use winrt::{
     *,
     windows::{
@@ -51,6 +51,9 @@ unsafe impl<T> Send for ComPropInner<T> {}
 
 struct ComProp<T>(Arc<Mutex<Option<ComPropInner<T>>>>);
 impl<T> ComProp<T> {
+    fn new(ptr: ComPtr<T>) -> Self {
+        Self(Arc::new(Mutex::new(Some(ComPropInner(ptr)))))
+    }
     fn get(&self) -> Option<ComPtr<T>> {
         let lock = self.0.lock().ok()?;
         lock.as_ref().map(|inner| inner.0.clone())
@@ -74,31 +77,25 @@ impl<T> Default for ComProp<T> {
     }
 }
 
-struct ComIterableMirrorInner<T>(Vec<ComPtr<T>>);
-unsafe impl<T> Send for ComIterableMirrorInner<T> {}
-impl<T> Default for ComIterableMirrorInner<T> {
+struct ComIterMirror<T>(Mutex<Vec<ComProp<T>>>);
+impl<T> ComIterMirror<T> {
+    fn get(&self) -> MutexGuard<Vec<ComProp<T>>> {
+        self.0.lock().expect("ComIterMirror: mutex lock failed")
+    }
+    fn vec(&self) -> Vec<ComPtr<T>> {
+        self
+            .get()
+            .iter()
+            .filter_map(|i| i.get().clone())
+            .collect()
+    }
+    fn push(&self, item: ComPtr<T>) {
+        self.get().push(ComProp::new(item));
+    }
+}
+impl<T> Default for ComIterMirror<T> {
     fn default() -> Self {
-        Self(Vec::new())
-    }
-}
-struct ComIterableMirror<T>(Arc<Mutex<ComIterableMirrorInner<T>>>);
-impl<T> ComIterableMirror<T> {
-    fn get(&self) -> Vec<ComPtr<T>> {
-
-        self.0.lock().expect("ComIterableMirror: mutex lock failed").0.clone()
-    }
-}
-impl<T> Default for ComIterableMirror<T> {
-    fn default() -> Self {
-        Self(Arc::new(Mutex::new(Default::default())))
-    }
-}
-impl<T> IntoIterator for ComIterableMirror<T> {
-    type Item = ComPtr<T>;
-    type IntoIter = ::std::vec::IntoIter<Self::Item>;
-
-    fn into_iter(self) -> Self::IntoIter {
-        self.get().into_iter()
+        Self(Mutex::new(Vec::new()))
     }
 }
 
@@ -106,7 +103,7 @@ impl<T> IntoIterator for ComIterableMirror<T> {
 struct App {
     target: ComProp<CompositionTarget>,
     visuals: ComProp<VisualCollection>,
-    visuals_vec: ComIterableMirror<Visual>,
+    visuals_mirror: ComIterMirror<Visual>,
     selected: ComProp<Visual>,
     last: Atomic<usize>,
     offset: Atomic<(f32, f32)>,
@@ -114,9 +111,6 @@ struct App {
 unsafe impl Send for App {}
 
 impl App {
-    fn target(&self) -> Option<ComPtr<CompositionTarget>> {
-        self.target.get()
-    }
     fn set_target(&self, value: ComPtr<CompositionTarget>) {
         self.target.set(Some(value));
     }
@@ -125,9 +119,6 @@ impl App {
     }
     fn set_visuals(&self, value: ComPtr<VisualCollection>) {
         self.visuals.set(Some(value));
-    }
-    fn visuals_vec(&self) -> Vec<ComPtr<Visual>> {
-        self.visuals_vec.get()
     }
     fn selected(&self) -> Option<ComPtr<Visual>> {
         self.selected.get()
@@ -189,8 +180,9 @@ impl App {
         });
         if let Some(visuals) = &self.visuals() {
             let _ = visuals.insert_at_top(&visual);
-            self.visuals_vec().push(visual.clone());
+            self.visuals_mirror.push(visual.clone());
         }
+
         self.select(visual);
         self.set_offset(-block_size / 2.0, -block_size / 2.0);
     }
@@ -224,17 +216,18 @@ impl FrameworkView for App {
             let visuals = this
                 .visuals()
                 .unwrap();
-            let visuals_vec = this.visuals_vec();
+            let visuals_vec = this.visuals_mirror.vec();
 
-            for visual in visuals_vec {
+            for visual in visuals_vec.iter() {
                 let offset = visual.get_offset().unwrap();
                 let size = visual.get_size().unwrap();
                 let hit_test = point.X >= offset.X &&
-                 point.X < offset.X + size.X &&
-                 point.Y >= offset.Y &&
-                 point.Y < offset.Y + size.Y;
+                    point.X < offset.X + size.X &&
+                    point.Y >= offset.Y &&
+                    point.Y < offset.Y + size.Y;
+
                 if hit_test {
-                    this.select(visual);
+                    this.select(visual.clone());
                     this.set_offset(offset.X - point.X, offset.Y - point.Y);
                 }
             }
