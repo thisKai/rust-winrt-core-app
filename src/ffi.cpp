@@ -13,9 +13,10 @@ void rust_ffi::FrameworkView::Run()
 {
     v_table.run(framework_view);
 }
-void rust_ffi::FrameworkView::SetWindow()
+void rust_ffi::FrameworkView::SetWindow(CoreWindow const & window)
 {
-    v_table.set_window(framework_view);
+    com_ptr<abi::ICoreWindow> abi_window { window.as<abi::ICoreWindow>() };
+    v_table.set_window(framework_view, abi_window.detach());
 }
 void rust_ffi::FrameworkView::Uninitialize()
 {

@@ -36,5 +36,5 @@ void App::Run()
 
 void App::SetWindow(CoreWindow const & window)
 {
-    m_view->SetWindow();
+    m_view->SetWindow(window);
 }

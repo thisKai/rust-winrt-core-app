@@ -4,7 +4,10 @@ use std::{
 };
 use winrt::{
     *,
-    windows::applicationmodel::core::IFrameworkViewSource,
+    windows::{
+        ui::core::CoreWindow,
+        applicationmodel::core::IFrameworkViewSource
+    },
 };
 
 extern "C" {
@@ -15,7 +18,7 @@ pub trait FrameworkView {
     fn initialize(self: Arc<Self>) {}
     fn load(self: Arc<Self>) {}
     fn run(self: Arc<Self>) {}
-    fn set_window(self: Arc<Self>) {}
+    fn set_window(self: Arc<Self>, window: ComPtr<CoreWindow>) {}
     fn uninitialize(self: Arc<Self>) {}
 }
 
@@ -38,9 +41,29 @@ macro_rules! vtable_methods {
             framework_view.clone().$fn_name()
         }
     };
-    ($($fn_name: ident,)+) => {
+    (
+        $fn_name: ident (
+            $(
+                $arg_name: ident : $arg_ty: ty
+            )+
+        )
+    ) => {
+        extern "C" fn $fn_name(framework_view: *mut c_void, $( $arg_name: $arg_ty ),+) {
+            let framework_view = framework_view as *mut Arc<FrameworkView>;
+            let framework_view = unsafe { &mut *framework_view };
+            $(
+                let $arg_name = unsafe { ComPtr::wrap($arg_name) };
+            )+
+            framework_view.clone().$fn_name($( $arg_name ),+)
+        }
+    };
+    (
         $(
-            vtable_methods!($fn_name);
+            $fn_name: ident $( ( $($args: tt)* ) )?,
+        )+
+    ) => {
+        $(
+            vtable_methods!($fn_name $( ( $($args)* ) )?);
         )+
     };
 }
@@ -55,7 +78,7 @@ pub struct FrameworkViewVTable {
     initialize: extern "C" fn(*mut c_void),
     load: extern "C" fn(*mut c_void),
     run: extern "C" fn(*mut c_void),
-    set_window: extern "C" fn(*mut c_void),
+    set_window: extern "C" fn(*mut c_void, *mut CoreWindow),
     uninitialize: extern "C" fn(*mut c_void),
 }
 
@@ -68,7 +91,7 @@ pub fn ffi<A: FrameworkView + 'static>(framework_view: A) -> FrameworkViewFfi {
         initialize,
         load,
         run,
-        set_window,
+        set_window(window: *mut CoreWindow),
         uninitialize,
     ];
 

@@ -7,3 +7,4 @@
 
 // WinRT ABI
 #include <Windows.ApplicationModel.Core.h>
+#include <Windows.UI.Core.h>

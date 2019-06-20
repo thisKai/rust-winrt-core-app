@@ -132,8 +132,7 @@ impl FrameworkView for App {
         let dispatcher = window.get_dispatcher().unwrap().unwrap();
         let _ = dispatcher.process_events(CoreProcessEventsOption::ProcessUntilQuit);
     }
-    fn set_window(self: Arc<Self>) {
-        let window = CoreWindow::get_for_current_thread().unwrap().unwrap();
+    fn set_window(self: Arc<Self>, window: ComPtr<CoreWindow>) {
         let compositor = Compositor::new();
         let root = compositor.create_container_visual().unwrap().unwrap();
         let target = compositor.create_target_for_current_view().unwrap().unwrap();
