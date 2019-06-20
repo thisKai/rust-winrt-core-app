@@ -6,7 +6,10 @@ use winrt::{
     *,
     windows::{
         ui::core::CoreWindow,
-        applicationmodel::core::IFrameworkViewSource
+        applicationmodel::core::{
+            IFrameworkViewSource,
+            CoreApplicationView,
+        }
     },
 };
 
@@ -15,7 +18,7 @@ extern "C" {
 }
 
 pub trait FrameworkView {
-    fn initialize(self: Arc<Self>) {}
+    fn initialize(self: Arc<Self>, application_view: ComPtr<CoreApplicationView>) {}
     fn load(self: Arc<Self>) {}
     fn run(self: Arc<Self>) {}
     fn set_window(self: Arc<Self>, window: ComPtr<CoreWindow>) {}
@@ -75,7 +78,7 @@ pub struct FrameworkViewFfi {
 }
 #[repr(C)]
 pub struct FrameworkViewVTable {
-    initialize: extern "C" fn(*mut c_void),
+    initialize: extern "C" fn(*mut c_void, *mut CoreApplicationView),
     load: extern "C" fn(*mut c_void),
     run: extern "C" fn(*mut c_void),
     set_window: extern "C" fn(*mut c_void, *mut CoreWindow),
@@ -88,7 +91,7 @@ pub fn ffi<A: FrameworkView + 'static>(framework_view: A) -> FrameworkViewFfi {
     let data = data as *mut c_void;
 
     vtable_methods![
-        initialize,
+        initialize(application_view: *mut CoreApplicationView),
         load,
         run,
         set_window(window: *mut CoreWindow),

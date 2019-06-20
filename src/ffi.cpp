@@ -1,9 +1,10 @@
 #include "ffi.h"
 #include "App.h"
 
-void rust_ffi::FrameworkView::Initialize()
+void rust_ffi::FrameworkView::Initialize(CoreApplicationView const & application_view)
 {
-    v_table.initialize(framework_view);
+    com_ptr<abi::ICoreApplicationView> abi_application_view { application_view.as<abi::ICoreApplicationView>() };
+    v_table.initialize(framework_view, abi_application_view.detach());
 }
 void rust_ffi::FrameworkView::Load()
 {

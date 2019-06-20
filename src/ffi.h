@@ -2,6 +2,7 @@
 #include "pch.h"
 
 using namespace winrt;
+using namespace Windows::ApplicationModel::Core;
 using namespace Windows::UI::Core;
 
 namespace abi {
@@ -14,7 +15,7 @@ namespace rust_ffi {
     using FrameworkViewOverrideMethod = void (*) (void * framework_view, Args... args);
 
     struct FrameworkView {
-        void Initialize();
+        void Initialize(CoreApplicationView const & application_view);
         void Load();
         void Run();
         void SetWindow(CoreWindow const & window);
@@ -22,7 +23,7 @@ namespace rust_ffi {
     private:
         void* framework_view;
         struct {
-            FrameworkViewOverrideMethod<> initialize;
+            FrameworkViewOverrideMethod<abi::ICoreApplicationView *> initialize;
             FrameworkViewOverrideMethod<> load;
             FrameworkViewOverrideMethod<> run;
             FrameworkViewOverrideMethod<abi::ICoreWindow *> set_window;

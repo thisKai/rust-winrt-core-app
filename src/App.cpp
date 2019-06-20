@@ -14,9 +14,9 @@ IFrameworkView App::CreateView()
     return *this;
 }
 
-void App::Initialize(CoreApplicationView const &)
+void App::Initialize(CoreApplicationView const & application_view)
 {
-    m_view->Initialize();
+    m_view->Initialize(application_view);
 }
 
 void App::Load(hstring const&)
