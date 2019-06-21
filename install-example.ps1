@@ -1,10 +1,18 @@
 Param(
-    [String] $Example = 'main'
+    [String] $Example = 'main',
+    [Switch] $SkipBuild
 )
 
 Push-Location $PSScriptRoot
 
-cargo build --example $Example
+If (-Not (Test-Path "./examples/$Example.rs")) {
+    Write-Host "Example '$Example' not found"
+    Exit 1
+}
+
+If (-Not $SkipBuild) {
+    cargo build --example $Example
+}
 
 $name = $Example
 $capital_name = (Get-Culture).TextInfo.ToTitleCase($name)
