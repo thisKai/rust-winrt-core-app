@@ -20,7 +20,7 @@ fn initialize_method() {
 fn load_method() {
     struct App;
     impl FrameworkView for App {
-        fn load(self: Arc<Self>) {}
+        fn load(self: Arc<Self>, entry_point: HString) {}
     }
 }
 

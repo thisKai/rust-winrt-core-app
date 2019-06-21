@@ -13,13 +13,15 @@ use winrt::{
     },
 };
 
+type HSTRING = <HString as RtType>::Abi;
+
 extern "C" {
     fn create_app(view: FrameworkViewFfi) -> *mut IFrameworkViewSource;
 }
 
 pub trait FrameworkView {
     fn initialize(self: Arc<Self>, application_view: ComPtr<CoreApplicationView>) {}
-    fn load(self: Arc<Self>) {}
+    fn load(self: Arc<Self>, entry_point: HString) {}
     fn run(self: Arc<Self>) {}
     fn set_window(self: Arc<Self>, window: ComPtr<CoreWindow>) {}
     fn uninitialize(self: Arc<Self>) {}
@@ -36,39 +38,10 @@ impl<T: FrameworkView + 'static> FrameworkViewSource for T {
     }
 }
 
-macro_rules! vtable_methods {
-    ($fn_name: ident) => {
-        extern "C" fn $fn_name(framework_view: *mut c_void) {
-            let framework_view = framework_view as *mut Arc<FrameworkView>;
-            let framework_view = unsafe { &mut *framework_view };
-            framework_view.clone().$fn_name()
-        }
-    };
-    (
-        $fn_name: ident (
-            $(
-                $arg_name: ident : $arg_ty: ty
-            )+
-        )
-    ) => {
-        extern "C" fn $fn_name(framework_view: *mut c_void, $( $arg_name: $arg_ty ),+) {
-            let framework_view = framework_view as *mut Arc<FrameworkView>;
-            let framework_view = unsafe { &mut *framework_view };
-            $(
-                let $arg_name = unsafe { ComPtr::wrap($arg_name) };
-            )+
-            framework_view.clone().$fn_name($( $arg_name ),+)
-        }
-    };
-    (
-        $(
-            $fn_name: ident $( ( $($args: tt)* ) )?,
-        )+
-    ) => {
-        $(
-            vtable_methods!($fn_name $( ( $($args)* ) )?);
-        )+
-    };
+fn this(ptr: *mut c_void) -> Arc<FrameworkView> {
+    let ptr = ptr as *mut Arc<FrameworkView>;
+    let ptr = unsafe { &mut *ptr };
+    ptr.clone()
 }
 
 #[repr(C)]
@@ -79,7 +52,7 @@ pub struct FrameworkViewFfi {
 #[repr(C)]
 pub struct FrameworkViewVTable {
     initialize: extern "C" fn(*mut c_void, *mut CoreApplicationView),
-    load: extern "C" fn(*mut c_void),
+    load: extern "C" fn(*mut c_void, entry_point: HSTRING),
     run: extern "C" fn(*mut c_void),
     set_window: extern "C" fn(*mut c_void, *mut CoreWindow),
     uninitialize: extern "C" fn(*mut c_void),
@@ -90,13 +63,24 @@ pub fn ffi<A: FrameworkView + 'static>(framework_view: A) -> FrameworkViewFfi {
     let data: *mut Arc<dyn FrameworkView> = Box::into_raw(Box::new(Arc::new(framework_view)));
     let data = data as *mut c_void;
 
-    vtable_methods![
-        initialize(application_view: *mut CoreApplicationView),
-        load,
-        run,
-        set_window(window: *mut CoreWindow),
-        uninitialize,
-    ];
+    extern "C" fn initialize(ptr: *mut c_void, application_view: *mut CoreApplicationView) {
+        let application_view = unsafe { ComPtr::wrap(application_view) };
+        this(ptr).initialize(application_view)
+    }
+    extern "C" fn load(ptr: *mut c_void, entry_point: HSTRING) {
+        let entry_point = unsafe { HString::wrap(entry_point) };
+        this(ptr).load(entry_point)
+    }
+    extern "C" fn run(ptr: *mut c_void) {
+        this(ptr).run()
+    }
+    extern "C" fn set_window(ptr: *mut c_void, window: *mut CoreWindow) {
+        let window = unsafe { ComPtr::wrap(window) };
+        this(ptr).set_window(window)
+    }
+    extern "C" fn uninitialize(ptr: *mut c_void) {
+        this(ptr).uninitialize()
+    }
 
     FrameworkViewFfi {
         data,

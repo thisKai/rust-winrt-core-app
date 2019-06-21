@@ -6,9 +6,10 @@ void rust_ffi::FrameworkView::Initialize(CoreApplicationView const & application
     com_ptr<abi::ICoreApplicationView> abi_application_view { application_view.as<abi::ICoreApplicationView>() };
     v_table.initialize(framework_view, abi_application_view.detach());
 }
-void rust_ffi::FrameworkView::Load()
+void rust_ffi::FrameworkView::Load(hstring const & entry_point)
 {
-    v_table.load(framework_view);
+    HSTRING abi_entry_point = (HSTRING)detach_abi(entry_point);
+    v_table.load(framework_view, abi_entry_point);
 }
 void rust_ffi::FrameworkView::Run()
 {

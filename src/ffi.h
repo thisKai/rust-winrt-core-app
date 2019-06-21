@@ -16,7 +16,7 @@ namespace rust_ffi {
 
     struct FrameworkView {
         void Initialize(CoreApplicationView const & application_view);
-        void Load();
+        void Load(hstring const & entry_point);
         void Run();
         void SetWindow(CoreWindow const & window);
         void Uninitialize();
@@ -24,7 +24,7 @@ namespace rust_ffi {
         void* framework_view;
         struct {
             FrameworkViewOverrideMethod<abi::ICoreApplicationView *> initialize;
-            FrameworkViewOverrideMethod<> load;
+            FrameworkViewOverrideMethod<HSTRING> load;
             FrameworkViewOverrideMethod<> run;
             FrameworkViewOverrideMethod<abi::ICoreWindow *> set_window;
             FrameworkViewOverrideMethod<> uninitialize;

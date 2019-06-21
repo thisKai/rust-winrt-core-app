@@ -19,9 +19,9 @@ void App::Initialize(CoreApplicationView const & application_view)
     m_view->Initialize(application_view);
 }
 
-void App::Load(hstring const&)
+void App::Load(hstring const& entry_point)
 {
-    m_view->Load();
+    m_view->Load(entry_point);
 }
 
 void App::Uninitialize()
