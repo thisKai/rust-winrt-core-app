@@ -3,6 +3,27 @@ name = "winrt-core-app"
 version = "0.3.0"
 authors = ["Kai <thiskaiguy@gmail.com>"]
 edition = "2018"
+keywords = [
+    "windows",
+    "runtime",
+    "winrt",
+    "uwp",
+    "universal",
+    "platform",
+    "core",
+    "application",
+    "app",
+    "coreapplication",
+    "window",
+    "windowing",
+    "ffi",
+    "api",
+    "winsdk",
+    "grahpics",
+    "bindings",
+    "ui",
+    "gui",
+]
 
 [dependencies]
 atomic = "0.4.5"
