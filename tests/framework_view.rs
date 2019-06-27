@@ -12,7 +12,9 @@ use winrt::{
 fn initialize_method() {
     struct App;
     impl FrameworkView for App {
-        fn initialize(self: Arc<Self>, application_view: ComPtr<CoreApplicationView>) {}
+        fn initialize(self: Arc<Self>, _application_view: ComPtr<CoreApplicationView>) -> Result<()> {
+            Ok(())
+        }
     }
 }
 
@@ -20,7 +22,9 @@ fn initialize_method() {
 fn load_method() {
     struct App;
     impl FrameworkView for App {
-        fn load(self: Arc<Self>, entry_point: HString) {}
+        fn load(self: Arc<Self>, _entry_point: HString) -> Result<()> {
+            Ok(())
+        }
     }
 }
 
@@ -28,7 +32,9 @@ fn load_method() {
 fn run_method() {
     struct App;
     impl FrameworkView for App {
-        fn run(self: Arc<Self>) {}
+        fn run(self: Arc<Self>) -> Result<()> {
+            Ok(())
+        }
     }
 }
 
@@ -36,7 +42,9 @@ fn run_method() {
 fn set_window_method() {
     struct App;
     impl FrameworkView for App {
-        fn set_window(self: Arc<Self>, window: ComPtr<CoreWindow>) {}
+        fn set_window(self: Arc<Self>, _window: ComPtr<CoreWindow>) -> Result<()> {
+            Ok(())
+        }
     }
 }
 
@@ -44,6 +52,8 @@ fn set_window_method() {
 fn uninitialize_method() {
     struct App;
     impl FrameworkView for App {
-        fn uninitialize(self: Arc<Self>) {}
+        fn uninitialize(self: Arc<Self>) -> Result<()> {
+            Ok(())
+        }
     }
 }

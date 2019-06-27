@@ -21,12 +21,14 @@ use winrt::{
 struct App;
 
 impl FrameworkView for App {
-    fn run(self: Arc<Self>) {
-        let window = CoreWindow::get_for_current_thread().unwrap().unwrap();
+    fn run(self: Arc<Self>) -> Result<()> {
+        let window = CoreWindow::get_for_current_thread()?.unwrap();
         let _ = window.activate();
 
-        let dispatcher = window.get_dispatcher().unwrap().unwrap();
-        let _ = dispatcher.process_events(CoreProcessEventsOption::ProcessUntilQuit);
+        let dispatcher = window.get_dispatcher()?.unwrap();
+        dispatcher.process_events(CoreProcessEventsOption::ProcessUntilQuit)?;
+
+        Ok(())
     }
 }
 

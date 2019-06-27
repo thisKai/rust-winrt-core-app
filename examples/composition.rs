@@ -125,14 +125,15 @@ impl App {
     }
 }
 impl FrameworkView for App {
-    fn run(self: Arc<Self>) {
+    fn run(self: Arc<Self>) -> Result<()> {
         let window = CoreWindow::get_for_current_thread().unwrap().unwrap();
         let _ = window.activate();
 
         let dispatcher = window.get_dispatcher().unwrap().unwrap();
         let _ = dispatcher.process_events(CoreProcessEventsOption::ProcessUntilQuit);
+        Ok(())
     }
-    fn set_window(self: Arc<Self>, window: ComPtr<CoreWindow>) {
+    fn set_window(self: Arc<Self>, window: ComPtr<CoreWindow>) -> Result<()> {
         let compositor = Compositor::new();
         let root = compositor.create_container_visual().unwrap().unwrap();
         let target = compositor.create_target_for_current_view().unwrap().unwrap();
@@ -206,6 +207,7 @@ impl FrameworkView for App {
         let _ = window.add_pointer_pressed(&pointer_pressed_handler);
         let _ = window.add_pointer_moved(&pointer_moved_handler);
         let _ = window.add_pointer_released(&pointer_released_handler);
+        Ok(())
     }
 }
 
