@@ -3,6 +3,7 @@ name = "winrt-core-app"
 version = "0.4.0"
 authors = ["Kai <thiskaiguy@gmail.com>"]
 edition = "2018"
+repository = "https://github.com/thisKai/rust-winrt-core-app"
 description = "Create a WinRT/UWP CoreApplication with rust"
 keywords = [
     "windows",
