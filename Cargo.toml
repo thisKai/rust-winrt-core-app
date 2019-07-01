@@ -7,23 +7,9 @@ repository = "https://github.com/thisKai/rust-winrt-core-app"
 description = "Create a WinRT/UWP CoreApplication with rust"
 keywords = [
     "windows",
-    "runtime",
     "winrt",
     "uwp",
-    "universal",
-    "platform",
-    "core",
-    "application",
-    "app",
-    "coreapplication",
-    "window",
-    "windowing",
-    "ffi",
-    "api",
     "winsdk",
-    "grahpics",
-    "bindings",
-    "ui",
     "gui",
 ]
 
