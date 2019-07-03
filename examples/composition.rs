@@ -126,28 +126,28 @@ impl App {
 }
 impl FrameworkView for App {
     fn run(self: Arc<Self>) -> Result<()> {
-        let window = CoreWindow::get_for_current_thread().unwrap().unwrap();
+        let window = CoreWindow::get_for_current_thread()?.unwrap();
         let _ = window.activate();
 
-        let dispatcher = window.get_dispatcher().unwrap().unwrap();
+        let dispatcher = window.get_dispatcher()?.unwrap();
         let _ = dispatcher.process_events(CoreProcessEventsOption::ProcessUntilQuit);
         Ok(())
     }
     fn set_window(self: Arc<Self>, window: ComPtr<CoreWindow>) -> Result<()> {
         let compositor = Compositor::new();
-        let root = compositor.create_container_visual().unwrap().unwrap();
-        let target = compositor.create_target_for_current_view().unwrap().unwrap();
+        let root = compositor.create_container_visual()?.unwrap();
+        let target = compositor.create_target_for_current_view()?.unwrap();
         let _ = target.set_root(&*root.clone().query_interface().unwrap());
         self.set_target(target);
-        self.set_visuals(root.get_children().unwrap().unwrap());
+        self.set_visuals(root.get_children()?.unwrap());
 
         let this = self.clone();
         let pointer_pressed_handler = TypedEventHandler::new(move |_sender, args: *mut PointerEventArgs| {
             let args = unsafe { &*args };
 
             let point = args
-                .get_current_point()
-                .unwrap().unwrap()
+                .get_current_point()?
+                .unwrap()
                 .get_position()
                 .unwrap();
             let visuals = this
@@ -183,8 +183,8 @@ impl FrameworkView for App {
                 let args = unsafe { &*args };
 
                 let point = args
-                    .get_current_point()
-                    .unwrap().unwrap()
+                    .get_current_point()?
+                    .unwrap()
                     .get_position()
                     .unwrap();
 
@@ -204,9 +204,9 @@ impl FrameworkView for App {
             Ok(())
         });
 
-        let _ = window.add_pointer_pressed(&pointer_pressed_handler);
-        let _ = window.add_pointer_moved(&pointer_moved_handler);
-        let _ = window.add_pointer_released(&pointer_released_handler);
+        window.add_pointer_pressed(&pointer_pressed_handler)?;
+        window.add_pointer_moved(&pointer_moved_handler)?;
+        window.add_pointer_released(&pointer_released_handler)?;
         Ok(())
     }
 }
